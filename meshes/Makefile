@@ -11,8 +11,8 @@ endif
 DIST=../dist
 
 all : \
-	$(DIST)/meshes.blob \
+	$(DIST)/board.blob \
 
 
-$(DIST)/meshes.blob : meshes.blend export-meshes.py
-	$(BLENDER) --background --python export-meshes.py -- '$<' '$@'
+$(DIST)/board.blob : board.blend export-meshes.py
+	$(BLENDER) --background --enable-new-depsgraph --python export-meshes.py -- '$<' '$@'

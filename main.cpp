@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
 	struct {
 		//TODO: this is where you set the title and size of your game window
 		std::string title = "Tilt Escape";
-		glm::uvec2 size = glm::uvec2(640, 400);
+		glm::uvec2 size = glm::uvec2(1024, 768);
 	} config;
 
 	//------------  initialization ------------
@@ -107,6 +107,7 @@ int main(int argc, char **argv) {
 		SDL_GL_GetDrawableSize(window, &w, &h);
 		drawable_size = glm::uvec2(w, h);
 		glViewport(0, 0, drawable_size.x, drawable_size.y);
+		std::cerr << "WINDOW SIZE" << w << "," << h << std::endl;
 	};
 	on_resize();
 

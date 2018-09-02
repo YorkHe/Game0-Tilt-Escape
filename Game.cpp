@@ -5,6 +5,8 @@
 #include "data_path.hpp" //helper to get paths relative to executable
 
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 
 #include <iostream>
 #include <fstream>
@@ -109,7 +111,7 @@ Game::Game() {
 	static_assert(sizeof(Vertex) == 28, "Vertex should be packed.");
 
 	{ //load mesh data from a binary blob:
-		std::ifstream blob(data_path("meshes.blob"), std::ios::binary);
+		std::ifstream blob(data_path("board.blob"), std::ios::binary);
 		//The blob will be made up of three chunks:
 		// the first chunk will be vertex data (interleaved position/normal/color)
 		// the second chunk will be characters
@@ -173,12 +175,9 @@ Game::Game() {
 			}
 			return f->second;
 		};
-		tile_mesh = lookup("Tile");
-		cursor_mesh = lookup("Cursor");
-		doll_mesh = lookup("Doll");
-		egg_mesh = lookup("Egg");
-		cube_mesh = lookup("Cube");
-	}
+		board_mesh= lookup("Board");
+		bigboss_mesh = lookup("BigBoss");
+}
 
 	{ //create vertex array object to hold the map from the mesh vertex buffer to shader program attributes:
 		glGenVertexArrays(1, &meshes_for_simple_shading_vao);
@@ -206,7 +205,7 @@ Game::Game() {
 	board_rotations.reserve(board_size.x * board_size.y);
 	std::mt19937 mt(0xbead1234);
 
-	std::vector< Mesh const * > meshes{ &doll_mesh, &egg_mesh, &cube_mesh };
+	std::vector< Mesh const * > meshes{&bigboss_mesh};
 
 	for (uint32_t i = 0; i < board_size.x * board_size.y; ++i) {
 		board_meshes.emplace_back(meshes[mt()%meshes.size()]);
@@ -303,6 +302,8 @@ void Game::update(float elapsed) {
 			}
 		}
 	}
+
+	big_boss.update(elapsed);
 }
 
 void Game::draw(glm::uvec2 drawable_size) {
@@ -311,29 +312,25 @@ void Game::draw(glm::uvec2 drawable_size) {
 	{
 		float aspect = float(drawable_size.x) / float(drawable_size.y);
 
-		//want scale such that board * scale fits in [-aspect,aspect]x[-1.0,1.0] screen box:
-		float scale = glm::min(
-			2.0f * aspect / float(board_size.x),
-			2.0f / float(board_size.y)
+		world_to_clip = glm::perspective(
+			glm::radians(60.0f),
+			aspect,
+			0.1f,
+			500.0f
+		)
+		 * glm::lookAt(
+			glm::vec3(0.0f, -10.0f, 15.0f),
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f)
 		);
 
-		//center of board will be placed at center of screen:
-		glm::vec2 center = 0.5f * glm::vec2(board_size);
-
-		//NOTE: glm matrices are specified in column-major order
-		world_to_clip = glm::mat4(
-			scale / aspect, 0.0f, 0.0f, 0.0f,
-			0.0f, scale, 0.0f, 0.0f,
-			0.0f, 0.0f,-1.0f, 0.0f,
-			-(scale / aspect) * center.x, -scale * center.y, 0.0f, 1.0f
-		);
 	}
 
 	//set up graphics pipeline to use data from the meshes and the simple shading program:
 	glBindVertexArray(meshes_for_simple_shading_vao);
 	glUseProgram(simple_shading.program);
 
-	glUniform3fv(simple_shading.sun_color_vec3, 1, glm::value_ptr(glm::vec3(0.81f, 0.81f, 0.76f)));
+	glUniform3fv(simple_shading.sun_color_vec3, 1, glm::value_ptr(glm::vec3(0.81f, 0.76f, 0.76f)));
 	glUniform3fv(simple_shading.sun_direction_vec3, 1, glm::value_ptr(glm::normalize(glm::vec3(-0.2f, 0.2f, 1.0f))));
 	glUniform3fv(simple_shading.sky_color_vec3, 1, glm::value_ptr(glm::vec3(0.2f, 0.2f, 0.3f)));
 	glUniform3fv(simple_shading.sky_direction_vec3, 1, glm::value_ptr(glm::vec3(0.0f, 1.0f, 0.0f)));
@@ -358,36 +355,19 @@ void Game::draw(glm::uvec2 drawable_size) {
 		glDrawArrays(GL_TRIANGLES, mesh.first, mesh.count);
 	};
 
-	for (uint32_t y = 0; y < board_size.y; ++y) {
-		for (uint32_t x = 0; x < board_size.x; ++x) {
-			draw_mesh(tile_mesh,
-				glm::mat4(
-					1.0f, 0.0f, 0.0f, 0.0f,
-					0.0f, 1.0f, 0.0f, 0.0f,
-					0.0f, 0.0f, 1.0f, 0.0f,
-					x+0.5f, y+0.5f,-0.5f, 1.0f
-				)
-			);
-			draw_mesh(*board_meshes[y*board_size.x+x],
-				glm::mat4(
-					1.0f, 0.0f, 0.0f, 0.0f,
-					0.0f, 1.0f, 0.0f, 0.0f,
-					0.0f, 0.0f, 1.0f, 0.0f,
-					x+0.5f, y+0.5f, 0.0f, 1.0f
-				)
-				* glm::mat4_cast(board_rotations[y*board_size.x+x])
-			);
-		}
-	}
-	draw_mesh(cursor_mesh,
+	draw_mesh(bigboss_mesh,
+		big_boss.get_view_matrix()
+	);
+
+
+	draw_mesh(board_mesh,
 		glm::mat4(
 			1.0f, 0.0f, 0.0f, 0.0f,
 			0.0f, 1.0f, 0.0f, 0.0f,
 			0.0f, 0.0f, 1.0f, 0.0f,
-			cursor.x+0.5f, cursor.y+0.5f, 0.0f, 1.0f
+			0.0f, 0.0f, 0.0f, 1.0f
 		)
 	);
-
 
 	glUseProgram(0);
 

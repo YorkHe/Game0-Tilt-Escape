@@ -5,6 +5,8 @@
 #include <SDL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include "BigBoss.hpp"
+#include "Enemy.hpp"
 
 #include <vector>
 
@@ -58,11 +60,13 @@ struct Game {
 		GLsizei count = 0;
 	};
 
-	Mesh tile_mesh;
-	Mesh cursor_mesh;
-	Mesh doll_mesh;
-	Mesh egg_mesh;
-	Mesh cube_mesh;
+	BigBoss big_boss = BigBoss(0, 0);
+	Enemy enemy_array[1] = {
+		Enemy(30, 30, Enemy::DIRECTION::DIRECTION_RIGHT)
+	};
+
+	Mesh board_mesh;
+	Mesh bigboss_mesh;
 
 	GLuint meshes_for_simple_shading_vao = -1U; //vertex array object that describes how to connect the meshes_vbo to the simple_shading_program
 

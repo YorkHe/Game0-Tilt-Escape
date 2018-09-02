@@ -3,7 +3,8 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/usr/local/Cellar/glm/0.9.9.0/include"
             ],
             "defines": [],
             "macFrameworkPath": [
