@@ -19,7 +19,7 @@ struct BigBoss {
     glm::vec2 position = glm::vec2(0, 0);
     glm::vec2 velocity = glm::vec2(0, 0);
 
-    int hit_wall(Board board);
-    void update(float elapsed, Board board);
+    int hit_wall(Board& board);
+    void update(float elapsed, Board& board);
     glm::mat4 get_view_matrix(float angle_horizontal, float angle_vertical);
 };

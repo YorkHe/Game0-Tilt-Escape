@@ -33,8 +33,6 @@ SecurityCamera::~SecurityCamera() {
 void SecurityCamera::update(float elapsed) {
     float amt = elapsed * 1.0f;
 
-    std::cerr << angle << "," << amt << "," << rotate_axis.z << std::endl;
-
     if (angle + amt > MAX_ANGLE) {
         rotate_axis.z = - rotate_axis.z;
         angle = 0.0f;

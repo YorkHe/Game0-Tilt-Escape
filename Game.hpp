@@ -79,6 +79,8 @@ struct Game {
 	Mesh cone_mesh;
 	Mesh camera_cone_mesh;
 	Mesh box_mesh;
+	Mesh check_point_mesh;
+	Mesh destination_mesh;
 
 	GLuint meshes_for_simple_shading_vao = -1U; //vertex array object that describes how to connect the meshes_vbo to the simple_shading_program
 

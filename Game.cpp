@@ -3,6 +3,7 @@
 #include "gl_errors.hpp" //helper for dumpping OpenGL error messages
 #include "read_chunk.hpp" //helper for reading a vector of structures from a file
 #include "data_path.hpp" //helper to get paths relative to executable
+#include "utils.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -180,6 +181,8 @@ Game::Game() {
 		cone_mesh = lookup("Cone");
 		camera_cone_mesh = lookup("CameraCone");
 		box_mesh = lookup("Box");
+		check_point_mesh = lookup("CheckPoint");
+		destination_mesh = lookup("Destination");
 }
 
 	{ //create vertex array object to hold the map from the mesh vertex buffer to shader program attributes:
@@ -447,7 +450,37 @@ void Game::draw(glm::uvec2 drawable_size) {
 
 	// Draw the board walls
 
+	for (int y = 0; y < 30; y++) {
+		for (int x = 0; x < 30; x++) {
+			if(board.map[y][x] == 2) {
+			    float coordinate_x = x - 14.5f;
+			    float coordinate_y = 14.5f - y;
 
+			    draw_mesh(check_point_mesh,
+			            glm::mat4(
+			            		1.0f, 0.0f, 0.0f, 0.0f,
+			            		0.0f, 1.0f, 0.0f, 0.0f,
+			            		0.0f, 0.0f, 1.0f, 0.0f,
+			            		coordinate_x, coordinate_y, get_height(board.angle_horizontal, board.angle_vertical, glm::vec2(coordinate_x, coordinate_y)), 1.0f
+						) * glm::mat4_cast(board_rotate)
+				);
+			}
+
+			if (board.map[y][x] == 5) {
+				float coordinate_x = x - 14.5f;
+			    float coordinate_y = 14.5f - y;
+
+			    draw_mesh(destination_mesh,
+			            glm::mat4(
+			            		1.0f, 0.0f, 0.0f, 0.0f,
+			            		0.0f, 1.0f, 0.0f, 0.0f,
+			            		0.0f, 0.0f, 1.0f, 0.0f,
+			            		coordinate_x, coordinate_y, get_height(board.angle_horizontal, board.angle_vertical, glm::vec2(coordinate_x, coordinate_y)), 1.0f
+						) * glm::mat4_cast(board_rotate)
+				);
+			}
+		}
+	}
 
 	glUseProgram(0);
 

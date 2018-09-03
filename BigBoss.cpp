@@ -21,7 +21,7 @@ glm::mat4 BigBoss::get_view_matrix(float angle_horizontal, float angle_vertical)
     );
 }
 
-void BigBoss::update(float elapsed, Board board) {
+void BigBoss::update(float elapsed, Board& board) {
     float amt = elapsed * 1.0f;
 
     int num_steps = 30;
@@ -55,7 +55,7 @@ void BigBoss::update(float elapsed, Board board) {
 
 
 }
-int BigBoss::hit_wall(Board board) {
+int BigBoss::hit_wall(Board& board) {
     int hit = 0;
 
     bool hit_left = abs(position.x + 14.75) < 0.1;
