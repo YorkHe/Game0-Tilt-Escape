@@ -1,5 +1,5 @@
 #include "BigBoss.hpp"
-#include "utils.hpp"
+#include "utils.h"
 
 
 #include <iostream>
@@ -28,7 +28,7 @@ void BigBoss::update(float elapsed, Board board) {
 
     float step_amt = amt / num_steps;
 
-    std::cerr << "("<< this->velocity.x << "," << this->velocity.y << ")" << std::endl;
+//    std::cerr << "("<< this->velocity.x << "," << this->velocity.y << ")" << std::endl;
 
 
     for (int i = 0; i < num_steps; i++) {

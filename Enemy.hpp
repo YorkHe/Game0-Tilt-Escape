@@ -14,11 +14,11 @@ struct Enemy {
     Enemy(float x, float y, DIRECTION d);
     ~Enemy();
 
-    glm::vec2 position;
+    glm::vec2 position = glm::vec2(0.0f, 0.0f);
 
     glm::vec2 velocity;
-    const float MAX_DISTANCE = 6.0f;
-
+    const float MAX_DISTANCE = 12.0f;
+    float distance = 6.0f;
 
     void update(float elapsed);
 

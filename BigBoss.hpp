@@ -12,11 +12,11 @@ struct BigBoss {
     BigBoss(float x, float y);
     ~BigBoss();
 
-    const float BOUNCE_FACTOR = 1.0f;
+    bool is_box = false;
+    const float BOUNCE_FACTOR = 0.8f;
     const float MAX_SPEED = 0.004f;
 
     glm::vec2 position = glm::vec2(0, 0);
-
     glm::vec2 velocity = glm::vec2(0, 0);
 
     int hit_wall(Board board);

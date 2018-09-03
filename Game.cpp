@@ -178,6 +178,7 @@ Game::Game() {
 		board_mesh= lookup("Board");
 		bigboss_mesh = lookup("BigBoss");
 		cone_mesh = lookup("Cone");
+		box_mesh = lookup("Box");
 }
 
 	{ //create vertex array object to hold the map from the mesh vertex buffer to shader program attributes:
@@ -222,15 +223,19 @@ bool Game::handle_event(SDL_Event const &evt, glm::uvec2 window_size) {
 	//handle tracking the state of WSAD for roll control:
 	if (evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP) {
 		if (evt.key.keysym.scancode == SDL_SCANCODE_UP) {
+		    big_boss.is_box = false;
 			controls.roll_up = (evt.type == SDL_KEYDOWN);
 			return true;
 		} else if (evt.key.keysym.scancode == SDL_SCANCODE_DOWN) {
+            big_boss.is_box = false;
 			controls.roll_down = (evt.type == SDL_KEYDOWN);
 			return true;
 		} else if (evt.key.keysym.scancode == SDL_SCANCODE_LEFT) {
+            big_boss.is_box = false;
 			controls.roll_left = (evt.type == SDL_KEYDOWN);
 			return true;
 		} else if (evt.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
+            big_boss.is_box = false;
 			controls.roll_right = (evt.type == SDL_KEYDOWN);
 			return true;
 		}
@@ -241,6 +246,9 @@ bool Game::handle_event(SDL_Event const &evt, glm::uvec2 window_size) {
 	        board.angle_horizontal = 0.0f;
 	        board.angle_vertical = 0.0f;
 	        board_rotate = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+
+	        big_boss.velocity = glm::vec2(0.0f, 0.0f);
+	        big_boss.is_box = true;
 	    }
 	}
 	//move cursor on L/R/U/D press:
@@ -339,6 +347,9 @@ void Game::update(float elapsed) {
 	}
 
 	big_boss.update(elapsed, board);
+	for(auto &enemy : enemy_array) {
+	    enemy.update(elapsed);
+	}
 }
 
 void Game::draw(glm::uvec2 drawable_size) {
@@ -394,13 +405,23 @@ void Game::draw(glm::uvec2 drawable_size) {
 	    draw_mesh(bigboss_mesh,
 	            enemy.get_view_matrix(board)
         );
+
+	    draw_mesh(cone_mesh,
+	            enemy.get_cone_matrix(board)
+        );
 	}
 
 
 	// Draw BigBoss
-	draw_mesh(bigboss_mesh,
-		big_boss.get_view_matrix(board.angle_horizontal, board.angle_vertical)
-	);
+	if (big_boss.is_box){
+	    draw_mesh(box_mesh,
+                  big_boss.get_view_matrix(board.angle_horizontal, board.angle_vertical)
+        );
+	} else {
+        draw_mesh(bigboss_mesh,
+                  big_boss.get_view_matrix(board.angle_horizontal, board.angle_vertical)
+        );
+	}
 
 
 	// Draw the board frame

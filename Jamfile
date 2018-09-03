@@ -58,6 +58,7 @@ if $(OS) = NT { #Windows
 NAMES =
 	main
 	data_path
+	utils
 	Enemy
 	BigBoss
 	Game
