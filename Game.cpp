@@ -177,6 +177,7 @@ Game::Game() {
 		};
 		board_mesh= lookup("Board");
 		bigboss_mesh = lookup("BigBoss");
+		cone_mesh = lookup("Cone");
 }
 
 	{ //create vertex array object to hold the map from the mesh vertex buffer to shader program attributes:
@@ -198,19 +199,6 @@ Game::Game() {
 	}
 
 	GL_ERRORS();
-
-	//----------------
-	//set up game board with meshes and rolls:
-	board_meshes.reserve(board_size.x * board_size.y);
-	board_rotations.reserve(board_size.x * board_size.y);
-	std::mt19937 mt(0xbead1234);
-
-	std::vector< Mesh const * > meshes{&bigboss_mesh};
-
-	for (uint32_t i = 0; i < board_size.x * board_size.y; ++i) {
-		board_meshes.emplace_back(meshes[mt()%meshes.size()]);
-		board_rotations.emplace_back(glm::quat());
-	}
 }
 
 Game::~Game() {
@@ -233,44 +221,44 @@ bool Game::handle_event(SDL_Event const &evt, glm::uvec2 window_size) {
 	}
 	//handle tracking the state of WSAD for roll control:
 	if (evt.type == SDL_KEYDOWN || evt.type == SDL_KEYUP) {
-		if (evt.key.keysym.scancode == SDL_SCANCODE_W) {
+		if (evt.key.keysym.scancode == SDL_SCANCODE_UP) {
 			controls.roll_up = (evt.type == SDL_KEYDOWN);
 			return true;
-		} else if (evt.key.keysym.scancode == SDL_SCANCODE_S) {
+		} else if (evt.key.keysym.scancode == SDL_SCANCODE_DOWN) {
 			controls.roll_down = (evt.type == SDL_KEYDOWN);
 			return true;
-		} else if (evt.key.keysym.scancode == SDL_SCANCODE_A) {
+		} else if (evt.key.keysym.scancode == SDL_SCANCODE_LEFT) {
 			controls.roll_left = (evt.type == SDL_KEYDOWN);
 			return true;
-		} else if (evt.key.keysym.scancode == SDL_SCANCODE_D) {
+		} else if (evt.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
 			controls.roll_right = (evt.type == SDL_KEYDOWN);
 			return true;
 		}
 	}
-	//move cursor on L/R/U/D press:
+
 	if (evt.type == SDL_KEYDOWN && evt.key.repeat == 0) {
-		if (evt.key.keysym.scancode == SDL_SCANCODE_LEFT) {
-			if (cursor.x > 0) {
-				cursor.x -= 1;
-			}
-			return true;
-		} else if (evt.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
-			if (cursor.x + 1 < board_size.x) {
-				cursor.x += 1;
-			}
-			return true;
-		} else if (evt.key.keysym.scancode == SDL_SCANCODE_UP) {
-			if (cursor.y + 1 < board_size.y) {
-				cursor.y += 1;
-			}
-			return true;
-		} else if (evt.key.keysym.scancode == SDL_SCANCODE_DOWN) {
-			if (cursor.y > 0) {
-				cursor.y -= 1;
-			}
-			return true;
-		}
+	    if (evt.key.keysym.scancode == SDL_SCANCODE_SPACE) {
+	        board.angle_horizontal = 0.0f;
+	        board.angle_vertical = 0.0f;
+	        board_rotate = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	    }
 	}
+	//move cursor on L/R/U/D press:
+//	if (evt.type == SDL_KEYDOWN && evt.key.repeat == 0) {
+//		if (evt.key.keysym.scancode == SDL_SCANCODE_LEFT) {
+//			big_boss.velocity = glm::vec2(-1.0f, 0.0f);
+//			return true;
+//		} else if (evt.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
+//		    big_boss.velocity = glm::vec2(1.0f, 0.0f);
+//			return true;
+//		} else if (evt.key.keysym.scancode == SDL_SCANCODE_UP) {
+//		    big_boss.velocity = glm::vec2(0.0f, 1.0f);
+//			return true;
+//		} else if (evt.key.keysym.scancode == SDL_SCANCODE_DOWN) {
+//		    big_boss.velocity = glm::vec2(0.0f, -1.0f);
+//			return true;
+//		}
+//	}
 	return false;
 }
 
@@ -278,32 +266,79 @@ void Game::update(float elapsed) {
 	//if the roll keys are pressed, rotate everything on the same row or column as the cursor:
 	glm::quat dr = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 	float amt = elapsed * 1.0f;
+
 	if (controls.roll_left) {
-		dr = glm::angleAxis(amt, glm::vec3(0.0f, 1.0f, 0.0f)) * dr;
+	    if (board.angle_horizontal > -BOARD_ROTATE_ANGLE_HORIZONTAL_LIMIT) {
+	        float da = amt;
+
+	        if (board.angle_horizontal - amt <= -BOARD_ROTATE_ANGLE_HORIZONTAL_LIMIT) {
+	            da = board.angle_horizontal + BOARD_ROTATE_ANGLE_HORIZONTAL_LIMIT;
+	            board.angle_horizontal = -BOARD_ROTATE_ANGLE_HORIZONTAL_LIMIT;
+	        } else {
+	            board.angle_horizontal -= amt;
+	        }
+
+            dr = glm::angleAxis(-da, board_rotate * glm::vec3(0.0f, 1.0f, 0.0f)) * dr;
+        } else {
+	        board.angle_horizontal = -BOARD_ROTATE_ANGLE_HORIZONTAL_LIMIT;
+	    }
 	}
 	if (controls.roll_right) {
-		dr = glm::angleAxis(-amt, glm::vec3(0.0f, 1.0f, 0.0f)) * dr;
+	    if (board.angle_horizontal < BOARD_ROTATE_ANGLE_HORIZONTAL_LIMIT) {
+	        float da = amt;
+
+	        if (board.angle_horizontal + amt >= BOARD_ROTATE_ANGLE_HORIZONTAL_LIMIT) {
+	            da = BOARD_ROTATE_ANGLE_HORIZONTAL_LIMIT - board.angle_horizontal;
+	            board.angle_horizontal = BOARD_ROTATE_ANGLE_HORIZONTAL_LIMIT;
+	        } else {
+	            board.angle_horizontal += amt;
+	        }
+
+            dr = glm::angleAxis(da, board_rotate * glm::vec3(0.0f, 1.0f, 0.0f)) * dr;
+	    } else {
+	        board.angle_horizontal = BOARD_ROTATE_ANGLE_HORIZONTAL_LIMIT;
+	    }
 	}
 	if (controls.roll_up) {
-		dr = glm::angleAxis(amt, glm::vec3(1.0f, 0.0f, 0.0f)) * dr;
-	}
-	if (controls.roll_down) {
-		dr = glm::angleAxis(-amt, glm::vec3(1.0f, 0.0f, 0.0f)) * dr;
-	}
-	if (dr != glm::quat()) {
-		for (uint32_t x = 0; x < board_size.x; ++x) {
-			glm::quat &r = board_rotations[cursor.y * board_size.x + x];
-			r = glm::normalize(dr * r);
-		}
-		for (uint32_t y = 0; y < board_size.y; ++y) {
-			if (y != cursor.y) {
-				glm::quat &r = board_rotations[y * board_size.x + cursor.x];
-				r = glm::normalize(dr * r);
-			}
-		}
+	    if (board.angle_vertical > -BOARD_ROTATE_ANGLE_VERTICAL_LIMIT) {
+
+	         float da = amt;
+
+	        if (board.angle_vertical - amt <= -BOARD_ROTATE_ANGLE_VERTICAL_LIMIT) {
+	            da = board.angle_vertical + BOARD_ROTATE_ANGLE_VERTICAL_LIMIT;
+	            board.angle_vertical= -BOARD_ROTATE_ANGLE_VERTICAL_LIMIT;
+	        } else {
+	            board.angle_vertical -= amt;
+	        }
+
+            dr = glm::angleAxis(-da, board_rotate * glm::vec3(1.0f, 0.0f, 0.0f)) * dr;
+        } else {
+            board.angle_vertical = -BOARD_ROTATE_ANGLE_VERTICAL_LIMIT;
+	    }
 	}
 
-	big_boss.update(elapsed);
+	if (controls.roll_down) {
+	    if (board.angle_vertical < BOARD_ROTATE_ANGLE_VERTICAL_LIMIT) {
+	        float da = amt;
+
+	        if (board.angle_vertical+ amt >= BOARD_ROTATE_ANGLE_VERTICAL_LIMIT) {
+	            da = BOARD_ROTATE_ANGLE_VERTICAL_LIMIT - board.angle_vertical;
+	            board.angle_vertical = BOARD_ROTATE_ANGLE_VERTICAL_LIMIT;
+	        } else {
+	            board.angle_vertical += amt;
+	        }
+
+            dr = glm::angleAxis(da, board_rotate * glm::vec3(1.0f, 0.0f, 0.0f)) * dr;
+        } else {
+            board.angle_vertical = BOARD_ROTATE_ANGLE_VERTICAL_LIMIT;
+	    }
+	}
+
+	if (dr != glm::quat()) {
+	    board_rotate = glm::normalize(dr * board_rotate);
+	}
+
+	big_boss.update(elapsed, board);
 }
 
 void Game::draw(glm::uvec2 drawable_size) {
@@ -313,13 +348,13 @@ void Game::draw(glm::uvec2 drawable_size) {
 		float aspect = float(drawable_size.x) / float(drawable_size.y);
 
 		world_to_clip = glm::perspective(
-			glm::radians(60.0f),
+			glm::radians(90.0f),
 			aspect,
 			0.1f,
 			500.0f
 		)
 		 * glm::lookAt(
-			glm::vec3(0.0f, -10.0f, 15.0f),
+			glm::vec3(0.0f, -10.0f, 25.0f),
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f)
 		);
@@ -355,19 +390,32 @@ void Game::draw(glm::uvec2 drawable_size) {
 		glDrawArrays(GL_TRIANGLES, mesh.first, mesh.count);
 	};
 
+	for (auto enemy : enemy_array) {
+	    draw_mesh(bigboss_mesh,
+	            enemy.get_view_matrix(board)
+        );
+	}
+
+
+	// Draw BigBoss
 	draw_mesh(bigboss_mesh,
-		big_boss.get_view_matrix()
+		big_boss.get_view_matrix(board.angle_horizontal, board.angle_vertical)
 	);
 
 
+	// Draw the board frame
 	draw_mesh(board_mesh,
-		glm::mat4(
-			1.0f, 0.0f, 0.0f, 0.0f,
-			0.0f, 1.0f, 0.0f, 0.0f,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.0f, 0.0f, 1.0f
-		)
-	);
+              glm::mat4(
+                      1.0f, 0.0f, 0.0f, 0.0f,
+                      0.0f, 1.0f, 0.0f, 0.0f,
+                      0.0f, 0.0f, 1.0f, 0.0f,
+                      0.0f, 0.0f, 0.0f, 1.0f
+              ) * glm::mat4_cast(board_rotate)
+    );
+
+	// Draw the board walls
+
+
 
 	glUseProgram(0);
 

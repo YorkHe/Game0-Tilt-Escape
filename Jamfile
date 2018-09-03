@@ -61,6 +61,7 @@ NAMES =
 	Enemy
 	BigBoss
 	Game
+	Board
 	;
 
 if $(OS) = NT {

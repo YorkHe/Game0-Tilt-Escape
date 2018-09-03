@@ -14,11 +14,17 @@ struct Enemy {
     Enemy(float x, float y, DIRECTION d);
     ~Enemy();
 
-    float position_x;
-    float position_y;
+    glm::vec2 position;
+
+    glm::vec2 velocity;
+    const float MAX_DISTANCE = 6.0f;
+
 
     void update(float elapsed);
-    void draw();
 
     bool intercept_with(BigBoss &b);
+
+    glm::mat4 get_view_matrix(Board board);
+
+    glm::mat4 get_cone_matrix(Board board);
 };

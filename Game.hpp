@@ -60,13 +60,14 @@ struct Game {
 		GLsizei count = 0;
 	};
 
-	BigBoss big_boss = BigBoss(0, 0);
+	BigBoss big_boss = BigBoss(-14, 14);
 	Enemy enemy_array[1] = {
 		Enemy(30, 30, Enemy::DIRECTION::DIRECTION_RIGHT)
 	};
 
 	Mesh board_mesh;
 	Mesh bigboss_mesh;
+	Mesh cone_mesh;
 
 	GLuint meshes_for_simple_shading_vao = -1U; //vertex array object that describes how to connect the meshes_vbo to the simple_shading_program
 
@@ -75,6 +76,14 @@ struct Game {
 	glm::uvec2 board_size = glm::uvec2(5,4);
 	std::vector< Mesh const * > board_meshes;
 	std::vector< glm::quat > board_rotations;
+	glm::quat board_rotate;
+
+	Board board;
+	float board_rotate_angle_horizontal = 0.0f;
+	float board_rotate_angle_vertical = 0.0f;
+
+	const float BOARD_ROTATE_ANGLE_HORIZONTAL_LIMIT = glm::radians(5.0f);
+	const float BOARD_ROTATE_ANGLE_VERTICAL_LIMIT = glm::radians(5.0f);
 
 	glm::uvec2 cursor = glm::vec2(0,0);
 
