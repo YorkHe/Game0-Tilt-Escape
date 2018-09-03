@@ -178,6 +178,7 @@ Game::Game() {
 		board_mesh= lookup("Board");
 		bigboss_mesh = lookup("BigBoss");
 		cone_mesh = lookup("Cone");
+		camera_cone_mesh = lookup("CameraCone");
 		box_mesh = lookup("Box");
 }
 
@@ -350,6 +351,10 @@ void Game::update(float elapsed) {
 	for(auto &enemy : enemy_array) {
 	    enemy.update(elapsed);
 	}
+
+	for (auto &security_camera: security_camera_array) {
+	    security_camera.update(elapsed);
+	}
 }
 
 void Game::draw(glm::uvec2 drawable_size) {
@@ -408,6 +413,12 @@ void Game::draw(glm::uvec2 drawable_size) {
 
 	    draw_mesh(cone_mesh,
 	            enemy.get_cone_matrix(board)
+        );
+	}
+
+	for (auto security_camera: security_camera_array) {
+	    draw_mesh(camera_cone_mesh,
+	            security_camera.get_cone_matrix(board)
         );
 	}
 

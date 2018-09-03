@@ -7,6 +7,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include "BigBoss.hpp"
 #include "Enemy.hpp"
+#include "SecurityCamera.h"
 
 #include <vector>
 
@@ -61,14 +62,22 @@ struct Game {
 	};
 
 	BigBoss big_boss = BigBoss(-14, 14);
-	Enemy enemy_array[2] = {
-		Enemy(0.0f, 0.0f, Enemy::DIRECTION::DIRECTION_RIGHT),
-		Enemy(0.0f, 0.0f, Enemy::DIRECTION::DIRECTION_UP)
+	Enemy enemy_array[3] = {
+		Enemy(6.0f, 0.0f, Enemy::DIRECTION::DIRECTION_LEFT),
+		Enemy(0.0f, -6.0f, Enemy::DIRECTION::DIRECTION_UP),
+		Enemy(10.0f, 10.0f, Enemy::DIRECTION::DIRECTION_DOWN)
 	};
+	SecurityCamera security_camera_array[3] = {
+	        SecurityCamera(-6.0f, 12.5f, SecurityCamera::DIRECTION::DIRECTION_DOWN),
+			SecurityCamera(-12.0f, -8.0f, SecurityCamera::DIRECTION::DIRECTION_UP),
+			SecurityCamera(-1.0f, -12.0f, SecurityCamera::DIRECTION::DIRECTION_RIGHT)
+	};
+
 
 	Mesh board_mesh;
 	Mesh bigboss_mesh;
 	Mesh cone_mesh;
+	Mesh camera_cone_mesh;
 	Mesh box_mesh;
 
 	GLuint meshes_for_simple_shading_vao = -1U; //vertex array object that describes how to connect the meshes_vbo to the simple_shading_program

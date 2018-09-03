@@ -18,7 +18,7 @@ struct Enemy {
 
     glm::vec2 velocity;
     const float MAX_DISTANCE = 12.0f;
-    float distance = 6.0f;
+    float distance = 0.0f;
 
     void update(float elapsed);
 

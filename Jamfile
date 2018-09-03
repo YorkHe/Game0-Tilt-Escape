@@ -63,6 +63,7 @@ NAMES =
 	BigBoss
 	Game
 	Board
+	SecurityCamera
 	;
 
 if $(OS) = NT {
