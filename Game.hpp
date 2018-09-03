@@ -98,6 +98,8 @@ struct Game {
 	const float BOARD_ROTATE_ANGLE_HORIZONTAL_LIMIT = glm::radians(5.0f);
 	const float BOARD_ROTATE_ANGLE_VERTICAL_LIMIT = glm::radians(5.0f);
 
+	bool game_over = false;
+
 	glm::uvec2 cursor = glm::vec2(0,0);
 
 	struct {

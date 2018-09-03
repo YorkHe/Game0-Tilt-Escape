@@ -53,6 +53,20 @@ glm::mat4 SecurityCamera::get_cone_matrix(Board board) {
 }
 
 bool SecurityCamera::intercept_with(BigBoss &b) {
-    return false;
+
+    float distance = glm::distance(this->position, b.position);
+
+    glm::vec4 orientation = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f) * camera_rotate;
+    glm::vec2 orientation_2d;
+    orientation_2d.x = -orientation.x;
+    orientation_2d.y = orientation.y;
+
+    float angle = glm::acos(glm::dot(
+            glm::normalize(orientation_2d),
+            glm::normalize(b.position - this->position)
+    ));
+
+    // MAGIC NUMBER. HOORAY!
+    return (distance < 5 && (3.14 - angle) > 2.8);
 }
 

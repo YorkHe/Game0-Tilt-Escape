@@ -67,7 +67,12 @@ glm::mat4 Enemy::get_cone_matrix(Board board) {
 }
 
 bool Enemy::intercept_with(BigBoss &b) {
-    return false;
+
+    float distance = glm::distance(this->position, b.position);
+    float angle = glm::acos(glm::dot(glm::normalize(this->velocity), glm::normalize(b.position - this->position)));
+
+    // MAGIC NUMBER. HOORAY!
+    return (distance < 3 && angle < 0.8);
 }
 
 void Enemy::update(float elapsed) {

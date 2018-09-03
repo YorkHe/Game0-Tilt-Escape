@@ -353,10 +353,18 @@ void Game::update(float elapsed) {
 	big_boss.update(elapsed, board);
 	for(auto &enemy : enemy_array) {
 	    enemy.update(elapsed);
+	    if (enemy.intercept_with(big_boss) && !big_boss.is_box) {
+	        game_over = true;
+	        std::cerr << "GAME OVER!" << std::endl;
+	    }
 	}
 
 	for (auto &security_camera: security_camera_array) {
 	    security_camera.update(elapsed);
+	    if (security_camera.intercept_with(big_boss) && !big_boss.is_box) {
+	    	game_over = true;
+			std::cerr << "GAME OVER!" << std::endl;
+	    }
 	}
 }
 
