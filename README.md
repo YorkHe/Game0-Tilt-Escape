@@ -14,8 +14,8 @@ Screen Shot:
 How to Play:
 
 1. Use `Arrow Key` to tilt the board and move the character
-2. Press `Space Key` to hide in to a paper box, thus you can stop moving and prevent being seen.
-3. If being seen by enemy or secure camera, the game will be over, and player can press `Enter Key` to restart a new game.
+2. Press `Space Key` to hide into a paper box, thus you can stop moving and prevent being seen.
+3. If being seen by enemy or secure camera, the game will be over. Player can press `Enter Key` to restart a new game.
 4. After collecting all the green checkpoints in the maze, the final destination will appear.
 5. When the character reaches the final destination, the level is cleared.
 
@@ -23,23 +23,22 @@ Difficulties Encountered:
 
 1. Export blender object
 
-    During the very beginning of this project, I spend over three hours in trying to get the correct size of an object in blender. It was only because I didn't apply the scaling operation.
+    During the very beginning of this project, I spent over three hours in trying to correctly resize an object in blender. It came out to be only because I didn't apply the scaling operation.
 
 2. Collision Detection
 
-    The collision detection of this game is quite difficult, because I have to detect the character with the maze itself. Under the guidance of TA Mr Osman, I decided to use index map to represent the maze.
+    The collision detection of this game is quite difficult, because I have to detect the character with the maze itself. Under the guidance of TA, Mr. Osman, I decided to use index map to represent the maze, and the result is quite promising.
 
 3. Physical simulation of object collision
 
-    Physical simulation of a sliding marble ball is not very easy.
-
+    The physical simulation of a sliding marble ball is not very easy.
 
 Good Code:
 
-All the objects in the game are enclosed as individual classes, and initialized using difference data, thus I can conveniently initialized the objects by a data-driven method.
+All the objects in the game are encapsulated as individual classes, and initialized using different data, thus the objects can be conveniently initialized in a data-driven way and updated separately.
 
 ```
-    //Such as (in Game.hpp):
+    // Game.hpp
     BigBoss big_boss = BigBoss(-14.0f, 14.0f);
     Enemy enemy_array[3] = {
         Enemy(6.0f, 0.0f, Enemy::DIRECTION::DIRECTION_LEFT),
@@ -52,6 +51,24 @@ All the objects in the game are enclosed as individual classes, and initialized 
             SecurityCamera(-12.0f, -8.0f, SecurityCamera::DIRECTION::DIRECTION_UP),
             SecurityCamera(-1.0f, -12.0f, SecurityCamera::DIRECTION::DIRECTION_RIGHT)
     };
+
+    // Game.cpp
+    big_boss.update(elapsed, board);
+    for(auto &enemy : enemy_array) {
+        enemy.update(elapsed);
+        if (enemy.intercept_with(big_boss) && !big_boss.is_box) {
+            game_over = true;
+            std::cerr << "GAME OVER!" << std::endl;
+        }
+    }
+
+    for (auto &security_camera: security_camera_array) {
+        security_camera.update(elapsed);
+        if (security_camera.intercept_with(big_boss) && !big_boss.is_box) {
+            game_over = true;
+            std::cerr << "GAME OVER!" << std::endl;
+        }
+    }
 ```
 
 
