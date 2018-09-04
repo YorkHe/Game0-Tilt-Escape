@@ -14,7 +14,7 @@ Screen Shot:
 How to Play:
 
 1. Use `Arrow Key` to tilt the board and move the character
-2. Press `Space Key` to hide into a paper box, thus you can stop moving and prevent being seen.
+2. Press `Space Key` to hide into a paper box, thus you can prevent yourself from being seen and stop moving.
 3. If being seen by enemy or secure camera, the game will be over. Player can press `Enter Key` to restart a new game.
 4. After collecting all the green checkpoints in the maze, the final destination will appear.
 5. When the character reaches the final destination, the level is cleared.
