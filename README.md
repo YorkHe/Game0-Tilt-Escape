@@ -27,7 +27,7 @@ Difficulties Encountered:
 
 2. Collision Detection
 
-    The collision detection of this game is quite difficult, because I have to detect the character with the maze itself. Under the guidance of TA, Mr. Osman, I decided to use index map to represent the maze, and the result is quite promising.
+    I spent many time trying to figure out the correct method to detect the collision between the moving character and the maze wall. Under the guidance of TA, Mr. Osman, I decided to use index map to represent the maze, and the result is quite promising.
 
 3. Physical simulation of object collision
 
