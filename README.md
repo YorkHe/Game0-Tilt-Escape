@@ -1,7 +1,7 @@
 # Game Information
 (Note: fill in this portion with information about your game.)
 
-Title: Metal Gear Solid: Tilt
+Title: Metal Gear Solid: Rolling Balls
 
 Author: Yu He (AndrewID: yuhe)
 
