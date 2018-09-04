@@ -5,7 +5,7 @@ Title: Metal Gear Solid: Tilt
 
 Author: Yu He (AndrewID: yuhe)
 
-Design Document: [Tile Escape](http://graphics.cs.cmu.edu/courses/15-466-f18/game0-designs/ishmaelj/)
+Design Document: [Tilt Escape](http://graphics.cs.cmu.edu/courses/15-466-f18/game0-designs/ishmaelj/)
 
 Screen Shot:
 
@@ -22,32 +22,37 @@ How to Play:
 Difficulties Encountered:
 
 1. Export blender object
+
     During the very beginning of this project, I spend over three hours in trying to get the correct size of an object in blender. It was only because I didn't apply the scaling operation.
+
 2. Collision Detection
+
     The collision detection of this game is quite difficult, because I have to detect the character with the maze itself. Under the guidance of TA Mr Osman, I decided to use index map to represent the maze.
+
 3. Physical simulation of object collision
+
     Physical simulation of a sliding marble ball is not very easy.
 
 
 Good Code:
 
-     All the objects in the game are enclosed as individual classes, and initialized using difference data, thus I can conveniently initialized the objects by a data-driven method.
+All the objects in the game are enclosed as individual classes, and initialized using difference data, thus I can conveniently initialized the objects by a data-driven method.
 
-    ```
-        //Such as (in Game.hpp):
-        BigBoss big_boss = BigBoss(-14.0f, 14.0f);
-	    Enemy enemy_array[3] = {
-		    Enemy(6.0f, 0.0f, Enemy::DIRECTION::DIRECTION_LEFT),
-		    Enemy(0.0f, -6.0f, Enemy::DIRECTION::DIRECTION_UP),
-		    Enemy(10.0f, 10.0f, Enemy::DIRECTION::DIRECTION_DOWN)
-	    };
+```
+    //Such as (in Game.hpp):
+    BigBoss big_boss = BigBoss(-14.0f, 14.0f);
+    Enemy enemy_array[3] = {
+        Enemy(6.0f, 0.0f, Enemy::DIRECTION::DIRECTION_LEFT),
+        Enemy(0.0f, -6.0f, Enemy::DIRECTION::DIRECTION_UP),
+        Enemy(10.0f, 10.0f, Enemy::DIRECTION::DIRECTION_DOWN)
+    };
 
-	    SecurityCamera security_camera_array[3] = {
-	            SecurityCamera(-6.0f, 12.5f, SecurityCamera::DIRECTION::DIRECTION_DOWN),
-			    SecurityCamera(-12.0f, -8.0f, SecurityCamera::DIRECTION::DIRECTION_UP),
-			    SecurityCamera(-1.0f, -12.0f, SecurityCamera::DIRECTION::DIRECTION_RIGHT)
-	    };
-    ```
+    SecurityCamera security_camera_array[3] = {
+            SecurityCamera(-6.0f, 12.5f, SecurityCamera::DIRECTION::DIRECTION_DOWN),
+            SecurityCamera(-12.0f, -8.0f, SecurityCamera::DIRECTION::DIRECTION_UP),
+            SecurityCamera(-1.0f, -12.0f, SecurityCamera::DIRECTION::DIRECTION_RIGHT)
+    };
+```
 
 
 
