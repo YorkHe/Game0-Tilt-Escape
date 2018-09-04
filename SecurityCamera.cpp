@@ -67,6 +67,7 @@ bool SecurityCamera::intercept_with(BigBoss &b) {
     ));
 
     // MAGIC NUMBER. HOORAY!
-    return (distance < 5 && (3.14 - angle) > 2.8);
+    spot = (distance < 5 && (3.14 - angle) > 2.7);
+    return spot;
 }
 

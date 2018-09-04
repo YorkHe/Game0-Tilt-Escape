@@ -22,9 +22,9 @@ glm::mat4 BigBoss::get_view_matrix(float angle_horizontal, float angle_vertical)
 }
 
 void BigBoss::update(float elapsed, Board& board) {
-    float amt = elapsed * 1.0f;
+    float amt = elapsed * 5.0f;
 
-    int num_steps = 30;
+    int num_steps = 5;
 
     float step_amt = amt / num_steps;
 
@@ -32,21 +32,27 @@ void BigBoss::update(float elapsed, Board& board) {
 
 
     for (int i = 0; i < num_steps; i++) {
-//        glm::vec2 old_position = glm::vec2(position.x, position.y);
+        glm::vec2 old_position = glm::vec2(position.x, position.y);
 
-        this->velocity += glm::vec2(0.01 * 9.8 * board.angle_horizontal* step_amt, 0.01 * 9.8 * -board.angle_vertical* step_amt);
+        this->velocity += glm::vec2(9.8 * board.angle_horizontal* step_amt, 9.8 * -board.angle_vertical* step_amt);
 
-        this->velocity.x = std::min(this->velocity.x, MAX_SPEED);
-        this->velocity.y = std::min(this->velocity.y, MAX_SPEED);
-
-        glm::vec2 step_velocity = glm::vec2(velocity.x / num_steps, velocity.y / num_steps);
-
-        for (int j = 0; j < num_steps; j++) {
-            hit_wall(board);
-
-            this->position = this->position + step_velocity;
+        if (this->velocity.x < 0) {
+            this->velocity.x = std::max(this->velocity.x, -MAX_SPEED);
+        } else {
+            this->velocity.x = std::min(this->velocity.x, MAX_SPEED);
         }
 
+        if (this->velocity.y < 0) {
+            this->velocity.y = std::max(this->velocity.y, -MAX_SPEED);
+        } else {
+            this->velocity.y = std::min(this->velocity.y, MAX_SPEED);
+        }
+
+        this->position = this->position + velocity * step_amt;
+
+        if (hit_wall(board)) {
+            this->position = old_position;
+        }
     }
 
 //    glm::vec2 old_position = glm::vec2(this->position.x, this->position.y);

@@ -77,7 +77,10 @@ struct Game {
 	Mesh board_mesh;
 	Mesh bigboss_mesh;
 	Mesh cone_mesh;
+	Mesh enemy_mesh;
+	Mesh cone_red_mesh;
 	Mesh camera_cone_mesh;
+	Mesh camera_cone_red_mesh;
 	Mesh box_mesh;
 	Mesh check_point_mesh;
 	Mesh destination_mesh;

@@ -14,7 +14,7 @@ struct BigBoss {
 
     bool is_box = false;
     const float BOUNCE_FACTOR = 0.8f;
-    const float MAX_SPEED = 0.004f;
+    const float MAX_SPEED = 1.8f;
 
     glm::vec2 position = glm::vec2(0, 0);
     glm::vec2 velocity = glm::vec2(0, 0);

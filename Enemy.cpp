@@ -72,7 +72,9 @@ bool Enemy::intercept_with(BigBoss &b) {
     float angle = glm::acos(glm::dot(glm::normalize(this->velocity), glm::normalize(b.position - this->position)));
 
     // MAGIC NUMBER. HOORAY!
-    return (distance < 3 && angle < 0.8);
+    spot = (distance < 3 && angle < 0.8);
+
+    return spot;
 }
 
 void Enemy::update(float elapsed) {

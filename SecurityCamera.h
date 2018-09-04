@@ -32,6 +32,8 @@ struct SecurityCamera {
     void update(float elapsed);
     bool intercept_with(BigBoss &b);
 
+    bool spot = false;
+
     glm::mat4 get_cone_matrix(Board board);
 };
 

@@ -178,8 +178,11 @@ Game::Game() {
 		};
 		board_mesh= lookup("Board");
 		bigboss_mesh = lookup("BigBoss");
+		enemy_mesh = lookup("Enemy");
 		cone_mesh = lookup("Cone");
+		cone_red_mesh = lookup("ConeRed");
 		camera_cone_mesh = lookup("CameraCone");
+		camera_cone_red_mesh = lookup("CameraConeRed");
 		box_mesh = lookup("Box");
 		check_point_mesh = lookup("CheckPoint");
 		destination_mesh = lookup("Destination");
@@ -418,30 +421,42 @@ void Game::draw(glm::uvec2 drawable_size) {
 	};
 
 	for (auto enemy : enemy_array) {
-	    draw_mesh(bigboss_mesh,
-	            enemy.get_view_matrix(board)
+	    draw_mesh(enemy_mesh,
+	            enemy.get_view_matrix(board)* glm::mat4_cast(board_rotate)
         );
 
-	    draw_mesh(cone_mesh,
-	            enemy.get_cone_matrix(board)
-        );
+	    if (enemy.spot) {
+			draw_mesh(cone_red_mesh,
+					  enemy.get_cone_matrix(board)
+					  );
+	    } else {
+			draw_mesh(cone_mesh,
+					  enemy.get_cone_matrix(board)
+			);
+		}
 	}
 
 	for (auto security_camera: security_camera_array) {
-	    draw_mesh(camera_cone_mesh,
-	            security_camera.get_cone_matrix(board)
-        );
+	    if (security_camera.spot) {
+			draw_mesh(camera_cone_red_mesh,
+					  security_camera.get_cone_matrix(board)
+			);
+	    } else {
+			draw_mesh(camera_cone_mesh,
+					  security_camera.get_cone_matrix(board)
+			);
+		}
 	}
 
 
 	// Draw BigBoss
 	if (big_boss.is_box){
 	    draw_mesh(box_mesh,
-                  big_boss.get_view_matrix(board.angle_horizontal, board.angle_vertical)
+                  big_boss.get_view_matrix(board.angle_horizontal, board.angle_vertical)* glm::mat4_cast(board_rotate)
         );
 	} else {
         draw_mesh(bigboss_mesh,
-                  big_boss.get_view_matrix(board.angle_horizontal, board.angle_vertical)
+                  big_boss.get_view_matrix(board.angle_horizontal, board.angle_vertical)* glm::mat4_cast(board_rotate)
         );
 	}
 

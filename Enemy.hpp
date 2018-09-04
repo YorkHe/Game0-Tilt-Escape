@@ -20,6 +20,8 @@ struct Enemy {
     const float MAX_DISTANCE = 12.0f;
     float distance = 0.0f;
 
+    bool spot = false;
+
     void update(float elapsed);
 
     bool intercept_with(BigBoss &b);

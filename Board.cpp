@@ -13,10 +13,10 @@ int Board::hit_detect(glm::vec2 position){
 
     // Reference From https://jonathanwhiting.com/tutorial/collision/
 
-    float object_left = position.x - 0.375f;
-    float object_right = position.x + 0.375f;
-    float object_up = position.y + 0.375f;
-    float object_down = position.y - 0.375f;
+    float object_left = position.x - 0.5f;
+    float object_right = position.x + 0.5f;
+    float object_up = position.y + 0.5f;
+    float object_down = position.y - 0.5f;
 
     int result = 0;
 
@@ -32,13 +32,12 @@ int Board::hit_detect(glm::vec2 position){
                 }
             }
         }
-
         checkpoint_counter ++;
 
         if (checkpoint_counter == 4) {
+            map[0][27] = 5; map[0][28] = 5; map[0][29] = 5;
             map[1][27] = 5; map[1][28] = 5; map[1][29] = 5;
             map[2][27] = 5; map[2][28] = 5; map[2][29] = 5;
-            map[3][27] = 5; map[3][28] = 5; map[3][29] = 5;
         }
     }
 
@@ -46,9 +45,9 @@ int Board::hit_detect(glm::vec2 position){
         level_clear = true;
     }
 
-    for (int x = position_x - 1; x <= position_x + 1; x++) {
+    for (int x = position_x - 2; x <= position_x + 2; x++) {
         if (x < 0 || x >= 30) continue;
-        for (int y = position_y - 1; y <= position_y + 1; y++) {
+        for (int y = position_y - 2; y <= position_y + 2; y++) {
             if (y < 0 || y >= 30) continue;
 
             if (map[y][x] == 1) {
