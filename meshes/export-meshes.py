@@ -69,6 +69,7 @@ for name in to_write:
 	mesh = obj.data
 	mesh.calc_normals_split()
 
+
 	#record mesh name, start position and vertex count in the index:
 	name_begin = len(strings)
 	strings += bytes(name, "utf8")
@@ -99,7 +100,16 @@ for name in to_write:
 				data += struct.pack('f', x)
 			#TODO: set 'col' based on object's active vertex colors array.
 			# you should be able to use code much like the texcoord code below.
-			col = mathutils.Color((1.0, 1.0, 1.0))
+			#col = mathutils.Color((1.0, 1.0, 1.0))
+
+			print(len(mesh.vertex_colors[0].data), poly.loop_indices[i])
+			if (len(mesh.vertex_colors) > 0):
+				col = mathutils.Color(
+					(mesh.vertex_colors.active.data[poly.loop_indices[i]].color.r,
+					mesh.vertex_colors.active.data[poly.loop_indices[i]].color.g,
+					mesh.vertex_colors.active.data[poly.loop_indices[i]].color.b
+					))
+
 			data += struct.pack('BBBB', int(col.r * 255), int(col.g * 255), int(col.b * 255), 255)
 
 			if do_texcoord:
