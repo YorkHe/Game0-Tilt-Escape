@@ -6,6 +6,20 @@
 
 #include <iostream>
 
+void Board::init_map() {
+    for (int x = 0; x < 30; x ++) {
+        for (int y = 0; y < 30; y++) {
+            if (map[x][y] == 3) {
+                map[x][y] = 2;
+            } else {
+                if (map[x][y] == 5) {
+                    map[x][y] = 4;
+                }
+            }
+        }
+    }
+}
+
 int Board::hit_detect(glm::vec2 position){
 
     int position_x = 15 + round(position.x);
@@ -21,7 +35,6 @@ int Board::hit_detect(glm::vec2 position){
     int result = 0;
 
     if (map[position_y][position_x] == 2) {
-        std::cerr << "HIT CHECKPOINT" << std::endl;
         for (int x = position_x - 2; x <= position_x + 2; x ++) {
             if (x < 0 || x >= 30) continue;
             for (int y = position_y - 2; y<=position_y + 2; y++) {
@@ -42,7 +55,8 @@ int Board::hit_detect(glm::vec2 position){
     }
 
     if (map[position_y][position_x] == 5) {
-        level_clear = true;
+        this->level_clear = true;
+        std::cerr << "LEVEL CLEAR" << std::endl;
     }
 
     for (int x = position_x - 2; x <= position_x + 2; x++) {
@@ -60,10 +74,6 @@ int Board::hit_detect(glm::vec2 position){
                 float tile_right = coordinate_x + 0.5f;
                 float tile_up = coordinate_y + 0.5f;
                 float tile_down = coordinate_y - 0.5f;
-
-//                std::cerr << x << "<" << y << std::endl;
-//                std::cerr << "(" << tile_left << "," << tile_right << "," << tile_up << "," << tile_down << ")" << std::endl;
-//                std::cerr << "(" << object_left<< "," << object_right<< "," << object_up << "," << object_down << ")" << std::endl;
 
                 bool x_overlaps_left = (object_left <= tile_left) && (object_right <= tile_right) && (tile_left <= object_right);
                 bool x_overlaps_right = (tile_left <= object_left) && (tile_right <= object_right) && (object_left <= tile_right);

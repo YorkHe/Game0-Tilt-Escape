@@ -186,6 +186,8 @@ Game::Game() {
 		box_mesh = lookup("Box");
 		check_point_mesh = lookup("CheckPoint");
 		destination_mesh = lookup("Destination");
+		game_over_mesh = lookup("Game Over");
+		level_clear_mesh = lookup("Level Clear");
 }
 
 	{ //create vertex array object to hold the map from the mesh vertex buffer to shader program attributes:
@@ -256,24 +258,29 @@ bool Game::handle_event(SDL_Event const &evt, glm::uvec2 window_size) {
 
 	        big_boss.velocity = glm::vec2(0.0f, 0.0f);
 	        big_boss.is_box = true;
+	        return true;
+	    }
+
+	    if (evt.key.keysym.scancode == SDL_SCANCODE_RETURN && (board.level_clear || game_over)) {
+	        board.level_clear = false;
+	        game_over = false;
+
+	        board.angle_horizontal = 0.0f;
+	        board.angle_vertical = 0.0f;
+	        board_rotate = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+
+	        big_boss.velocity = glm::vec2(0.0f, 0.0f);
+	        big_boss.is_box = false;
+
+	        big_boss.position.x = -14;
+	        big_boss.position.y = 14;
+
+	        board.checkpoint_counter = 0;
+
+	        board.init_map();
+	        return true;
 	    }
 	}
-	//move cursor on L/R/U/D press:
-//	if (evt.type == SDL_KEYDOWN && evt.key.repeat == 0) {
-//		if (evt.key.keysym.scancode == SDL_SCANCODE_LEFT) {
-//			big_boss.velocity = glm::vec2(-1.0f, 0.0f);
-//			return true;
-//		} else if (evt.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
-//		    big_boss.velocity = glm::vec2(1.0f, 0.0f);
-//			return true;
-//		} else if (evt.key.keysym.scancode == SDL_SCANCODE_UP) {
-//		    big_boss.velocity = glm::vec2(0.0f, 1.0f);
-//			return true;
-//		} else if (evt.key.keysym.scancode == SDL_SCANCODE_DOWN) {
-//		    big_boss.velocity = glm::vec2(0.0f, -1.0f);
-//			return true;
-//		}
-//	}
 	return false;
 }
 
@@ -281,6 +288,9 @@ void Game::update(float elapsed) {
 	//if the roll keys are pressed, rotate everything on the same row or column as the cursor:
 	glm::quat dr = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 	float amt = elapsed * 1.0f;
+
+	if (game_over) return;
+	if (board.level_clear) return;
 
 	if (controls.roll_left) {
 	    if (board.angle_horizontal > -BOARD_ROTATE_ANGLE_HORIZONTAL_LIMIT) {
@@ -373,7 +383,7 @@ void Game::update(float elapsed) {
 
 void Game::draw(glm::uvec2 drawable_size) {
 	//Set up a transformation matrix to fit the board in the window:
-	glm::mat4 world_to_clip;
+	glm::mat4 world_to_clip, world_to_clip_ortho;
 	{
 		float aspect = float(drawable_size.x) / float(drawable_size.y);
 
@@ -389,6 +399,17 @@ void Game::draw(glm::uvec2 drawable_size) {
 			glm::vec3(0.0f, 1.0f, 0.0f)
 		);
 
+		world_to_clip_ortho = glm::perspective(
+			glm::radians(90.0f),
+			aspect,
+			0.1f,
+			500.0f
+		)
+		 * glm::lookAt(
+			glm::vec3(0.0f, 0.0f, 25.0f),
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f)
+		);
 	}
 
 	//set up graphics pipeline to use data from the meshes and the simple shading program:
@@ -401,10 +422,14 @@ void Game::draw(glm::uvec2 drawable_size) {
 	glUniform3fv(simple_shading.sky_direction_vec3, 1, glm::value_ptr(glm::vec3(0.0f, 1.0f, 0.0f)));
 
 	//helper function to draw a given mesh with a given transformation:
-	auto draw_mesh = [&](Mesh const &mesh, glm::mat4 const &object_to_world) {
+	auto draw_mesh = [&](Mesh const &mesh, glm::mat4 const &object_to_world, bool ortho = false) {
 		//set up the matrix uniforms:
 		if (simple_shading.object_to_clip_mat4 != -1U) {
-			glm::mat4 object_to_clip = world_to_clip * object_to_world;
+			glm::mat4 object_to_clip;
+		    if (!ortho)
+				object_to_clip = world_to_clip * object_to_world;
+			else
+				object_to_clip = world_to_clip_ortho * object_to_world;
 			glUniformMatrix4fv(simple_shading.object_to_clip_mat4, 1, GL_FALSE, glm::value_ptr(object_to_clip));
 		}
 		if (simple_shading.object_to_light_mat4x3 != -1U) {
@@ -425,7 +450,7 @@ void Game::draw(glm::uvec2 drawable_size) {
 	            enemy.get_view_matrix(board)* glm::mat4_cast(board_rotate)
         );
 
-	    if (enemy.spot) {
+	    if (enemy.spot && !big_boss.is_box) {
 			draw_mesh(cone_red_mesh,
 					  enemy.get_cone_matrix(board)
 					  );
@@ -437,7 +462,7 @@ void Game::draw(glm::uvec2 drawable_size) {
 	}
 
 	for (auto security_camera: security_camera_array) {
-	    if (security_camera.spot) {
+	    if (security_camera.spot && !big_boss.is_box) {
 			draw_mesh(camera_cone_red_mesh,
 					  security_camera.get_cone_matrix(board)
 			);
@@ -503,6 +528,28 @@ void Game::draw(glm::uvec2 drawable_size) {
 				);
 			}
 		}
+	}
+
+	if (game_over) {
+		draw_mesh(game_over_mesh,
+				glm::mat4(
+				        1.0f, 0.0f, 0.0f, 0.0f,
+				        0.0f, 1.0f, 0.0f,0.0f,
+				        0.0f, 0.0f, 1.0f,0.0f,
+				        -8.0f, 0.0f, 15.0f, 1.0f
+				), true
+		);
+	}
+
+	if (board.level_clear) {
+	    draw_mesh(level_clear_mesh,
+				glm::mat4(
+				        1.0f, 0.0f, 0.0f, 0.0f,
+				        0.0f, 1.0f, 0.0f,0.0f,
+				        0.0f, 0.0f, 1.0f,0.0f,
+				        -8.0f, 0.0f, 15.0f, 1.0f
+				), true
+		);
 	}
 
 	glUseProgram(0);

@@ -61,7 +61,7 @@ struct Game {
 		GLsizei count = 0;
 	};
 
-	BigBoss big_boss = BigBoss(-14, 14);
+	BigBoss big_boss = BigBoss(-14.0f, 14.0f);
 	Enemy enemy_array[3] = {
 		Enemy(6.0f, 0.0f, Enemy::DIRECTION::DIRECTION_LEFT),
 		Enemy(0.0f, -6.0f, Enemy::DIRECTION::DIRECTION_UP),
@@ -84,6 +84,8 @@ struct Game {
 	Mesh box_mesh;
 	Mesh check_point_mesh;
 	Mesh destination_mesh;
+	Mesh game_over_mesh;
+	Mesh level_clear_mesh;
 
 	GLuint meshes_for_simple_shading_vao = -1U; //vertex array object that describes how to connect the meshes_vbo to the simple_shading_program
 

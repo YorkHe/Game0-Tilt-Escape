@@ -28,9 +28,6 @@ void BigBoss::update(float elapsed, Board& board) {
 
     float step_amt = amt / num_steps;
 
-//    std::cerr << "("<< this->velocity.x << "," << this->velocity.y << ")" << std::endl;
-
-
     for (int i = 0; i < num_steps; i++) {
         glm::vec2 old_position = glm::vec2(position.x, position.y);
 
@@ -54,11 +51,6 @@ void BigBoss::update(float elapsed, Board& board) {
             this->position = old_position;
         }
     }
-
-//    glm::vec2 old_position = glm::vec2(this->position.x, this->position.y);
-
-//    this->position = this->position + this->velocity;
-
 
 }
 int BigBoss::hit_wall(Board& board) {
